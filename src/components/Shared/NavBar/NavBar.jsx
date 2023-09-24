@@ -17,11 +17,17 @@ import { usePathname, useRouter } from "next/navigation";
 import SunSVG from "./SunSVG";
 import MoonSvg from "./MoonSvg";
 import useTheme from "@/hooks/useTheme";
+import { useCallback, useEffect, useState } from "react";
+import { getCartItems } from "@/utils/cart/cartFunctions";
+import CartHooks from "@/hooks/cartHooks";
 
 const NavBar = () => {
-  // const [cartItems, setCartItems] = useState([]);
+  /* const cart = getCartItems();
+  let carts = cart;
+  const [cartItems, setCartItems] = useState([]);
+  console.log("🚀 ~ file: NavBar.jsx:24 ~ NavBar ~ cartItems:", cartItems); */
 
-  const { user, logout } = useAuth();
+  const { user, logout, cartItems, cartHooks } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { replace, refresh } = useRouter();
   const path = usePathname();
@@ -52,6 +58,10 @@ const NavBar = () => {
       toast.dismiss(toastId);
     }
   };
+
+  useEffect(() => {
+    cartHooks();
+  }, []);
 
   return (
     <>
@@ -102,10 +112,13 @@ const NavBar = () => {
 
             {/* night */}
             <div className="hidden md:inline-block">
-              <div className="flex  items-center justify-center w-[35px] h-[35px]">
+              <div className="flex relative items-center justify-center w-[35px] h-[35px]">
                 <Link href={"/cart"}>
                   <HiOutlineShoppingBag className="text-[1.75rem] dark:text-white" />
                 </Link>
+                <div className="absolute z-10 top-0 bg-orange-400">
+                  {cartItems?.length}
+                </div>
               </div>
             </div>
             <div className="dropdown dropdown-end">
@@ -177,13 +190,7 @@ const NavBar = () => {
             </div>
           </div>
         </div>
-
         <hr />
-
-        {/* category */}
-        {/*  <div className=" w-full  bg-white dark:bg-transparent">
-          <Categories></Categories>
-        </div> */}
       </nav>
     </>
   );
