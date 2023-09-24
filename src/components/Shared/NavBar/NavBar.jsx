@@ -17,16 +17,9 @@ import { usePathname, useRouter } from "next/navigation";
 import SunSVG from "./SunSVG";
 import MoonSvg from "./MoonSvg";
 import useTheme from "@/hooks/useTheme";
-import { useCallback, useEffect, useState } from "react";
-import { getCartItems } from "@/utils/cart/cartFunctions";
-import CartHooks from "@/hooks/cartHooks";
+import { useEffect } from "react";
 
 const NavBar = () => {
-  /* const cart = getCartItems();
-  let carts = cart;
-  const [cartItems, setCartItems] = useState([]);
-  console.log("🚀 ~ file: NavBar.jsx:24 ~ NavBar ~ cartItems:", cartItems); */
-
   const { user, logout, cartItems, cartHooks } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { replace, refresh } = useRouter();
@@ -116,9 +109,16 @@ const NavBar = () => {
                 <Link href={"/cart"}>
                   <HiOutlineShoppingBag className="text-[1.75rem] dark:text-white" />
                 </Link>
-                <div className="absolute z-10 top-0 bg-orange-400">
-                  {cartItems?.length}
-                </div>
+                {cartItems?.length <= 0 ? (
+                  ""
+                ) : (
+                  <Link
+                    href={"/cart"}
+                    className="absolute z-10 top-0 -right-2 bg-orange-400 h-6 w-6 rounded-full flex justify-center items-center text-sm font-semibold"
+                  >
+                    <span>{cartItems?.length}</span>
+                  </Link>
+                )}
               </div>
             </div>
             <div className="dropdown dropdown-end">
@@ -179,10 +179,20 @@ const NavBar = () => {
                 {/* night */}
                 <div className="md:hidden ">
                   <div className="flex relative items-center justify-center w-[35px] h-[35px]">
-                    <div className="flex  items-center justify-center w-[35px] h-[35px]">
+                    <div className="flex relative items-center justify-center w-[35px] h-[35px]">
                       <Link href={"/cart"}>
                         <HiOutlineShoppingBag className="text-[1.75rem] dark:text-white" />
                       </Link>
+                      {cartItems?.length <= 0 ? (
+                        ""
+                      ) : (
+                        <Link
+                          href={"/cart"}
+                          className="absolute z-10 top-0 -right-2 bg-orange-400 h-6 w-6 rounded-full flex justify-center items-center text-sm font-semibold"
+                        >
+                          <span>{cartItems?.length}</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>

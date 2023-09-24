@@ -72,6 +72,12 @@ const AuthProvider = ({ children }) => {
       setCartItems(getItems);
     }
   };
+  const cartDelateHook = () => {
+    if (typeof window !== "undefined") {
+      const getItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+      setCartItems(getItems);
+    }
+  };
 
   const value = {
     user,
@@ -84,6 +90,7 @@ const AuthProvider = ({ children }) => {
     changePassword,
     cartHooks,
     cartItems,
+    cartDelateHook,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
