@@ -13,41 +13,60 @@ import Search from "./Search";
 import useAuth from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
 import LogoSVG from "./LogoSVG";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SunSVG from "./SunSVG";
 import MoonSvg from "./MoonSvg";
 import useTheme from "@/hooks/useTheme";
 import { useEffect } from "react";
+import { startTransition } from "react";
 
 const NavBar = () => {
   const { user, logout, cartItems, cartHooks } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { replace, refresh } = useRouter();
+
   const path = usePathname();
+  console.log("🚀 ~ file: NavBar.jsx:29 ~ NavBar ~ path:", path);
+  const searchParams = useSearchParams();
+  let productId = searchParams.get("productId");
+  console.log(
+    "🚀 ~ file: NavBar.jsx:30 ~ NavBar ~ searchParams:",
+    searchParams.get("productId")
+  );
   const { uid, photoURL } = user || {};
   const li = uid ? afterLoginNavData : beforeLoginNavData;
   const handleLogout = async () => {
     const toastId = toast.loading("Loading...");
     try {
+      // Call the `logout()` function from NextAuth.js
       await logout();
-      const res = await fetch("/api/auth/", {
+
+      // Make a POST request to the `/api/auth/logout` endpoint
+      const res = await fetch("/api/auth/logout", {
         method: "POST",
       });
-      await res.json();
-      if (
-        path.includes("/dashboard") ||
-        path.includes("/dashboard/myProfile") ||
-        path.includes("/payment")
-      ) {
-        replace(`/login?redirectUrl=${path}`);
+
+      if (res.status === 200) {
+        if (
+          path.includes("/dashboard") ||
+          path.includes("/dashboard/myProfile") ||
+          path.includes("/payment")
+        ) {
+          // Append the query parameters to the redirect URL
+          replace(`/login?redirectUrl=${path}?${productId}`);
+        }
+
+        toast.success("Successfully logout!");
+
+        startTransition(() => {
+          refresh();
+        });
+      } else {
+        toast.error("Failed to logout!");
       }
-      toast.dismiss(toastId);
-      toast.success("Successfully logout!");
-      startTransition(() => {
-        refresh();
-      });
     } catch (error) {
-      toast.error("Successfully not logout!");
+      toast.error(error.message);
+    } finally {
       toast.dismiss(toastId);
     }
   };
@@ -149,7 +168,7 @@ const NavBar = () => {
                     <Link
                       href={""}
                       className="dark:text-white"
-                      onClick={() => logout()}
+                      onClick={() => handleLogout()}
                     >
                       LogOut
                     </Link>
